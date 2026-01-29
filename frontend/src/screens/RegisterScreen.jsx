@@ -3,218 +3,292 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
-  Alert,
-  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import RegisterStyles from "../styles/registerStyles";
 import { Colors } from "../constants/colors";
 
 export default function RegisterScreen({ route, navigation }) {
   const role = route?.params?.role || "User";
 
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleRegister = () => {
-    if (!name || !email || !phone || !password) {
-      Alert.alert("Error", "Please fill all fields");
-      return;
+  /* 🔍 LIVE VALIDATION */
+  const validate = (field, value) => {
+    let error = "";
+
+    if (field === "firstName") {
+      if (value.trim().length < 2) {
+        error = "First name must be at least 2 characters";
+      } else if (/\s{2,}/.test(value)) {
+        error = "First name cannot have multiple spaces";
+      }
     }
 
-    // ✅ TEMP FRONTEND SUCCESS FLOW
-    navigation.reset({
-      index: 0,
-      routes: [{ name: role === "User" ? "UserHome" : "TrainerHome" }],
+    if (field === "lastName" && value.trim().length < 2) {
+      error = "Last name must be at least 2 characters";
+    }
+
+    if (
+      field === "email" &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ) {
+      error = "Enter a valid email";
+    }
+
+    if (field === "phone" && value.length !== 10) {
+      error = "Phone must be 10 digits";
+    }
+
+    if (field === "password" && value.length < 6) {
+      error = "Password must be at least 6 characters";
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const isFormValid =
+    firstName &&
+    lastName &&
+    email &&
+    phone &&
+    password &&
+    Object.values(errors).every((e) => e === "");
+
+  const handleRegister = () => {
+    if (!isFormValid) return;
+
+    const nextScreen = role === "Trainer" ? "TrainerHome" : "UserDashboard";
+    navigation.navigate(nextScreen, {
+      userData: {
+        firstName,
+        lastName,
+        email,
+        phone,
+        password,
+      },
+      role,
     });
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={RegisterStyles.safe}>
+      {/* HEADER WITH BACK BUTTON - TOP RIGHT */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          paddingRight: 16,
+          paddingVertical: 10,
+          marginTop: 20,
+        }}
       >
-        {/* BACK */}
-        <Text style={styles.back} onPress={() => navigation.goBack()}>
-          ← Back
-        </Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
 
-        {/* HEADER */}
-        <Text style={styles.title}>{role} Registration</Text>
-        <Text style={styles.subtitle}>
-          Create your account to{" "}
-          {role === "User" ? "find trainers" : "share your skills"}
-        </Text>
-
-        {/* FORM CARD */}
-        <View style={styles.card}>
-          <Input
-            icon="person-outline"
-            label="Full Name"
-            value={name}
-            setValue={setName}
-            placeholder="John Doe"
-          />
-
-          <Input
-            icon="mail-outline"
-            label="Email"
-            value={email}
-            setValue={setEmail}
-            placeholder="john@example.com"
-          />
-
-          <Input
-            icon="call-outline"
-            label="Phone"
-            value={phone}
-            setValue={setPhone}
-            placeholder="+91 98765 43210"
-            keyboard="phone-pad"
-          />
-
-          <Input
-            icon="lock-closed-outline"
-            label="Password"
-            value={password}
-            setValue={setPassword}
-            placeholder="••••••••"
-            secure
-          />
-
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.85}
-            onPress={handleRegister}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={{
+            paddingVertical: 20,
+            paddingHorizontal: 20,
+          }}
+          scrollEnabled={true}
+        >
+          {/* CENTERED HEADER TEXT */}
+          <View
+            style={{
+              alignItems: "center",
+              marginBottom: 10,
+              paddingHorizontal: 20,
+            }}
           >
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
-        </View>
+            <Text style={RegisterStyles.title}>{role} Registration</Text>
+            <Text style={RegisterStyles.subtitle}>
+              Create your account to find trainers
+            </Text>
+          </View>
 
-        {/* LOGIN */}
-        <Text style={styles.loginText}>
-          Already have an account?{" "}
-          <Text
-            style={styles.login}
-            onPress={() => navigation.navigate("Login")}
+          {/* FORM CARD WITH BORDER */}
+          <View
+            style={[
+              RegisterStyles.card,
+              {
+                borderWidth: 1,
+                borderColor: "#6366F1",
+                width: "100%",
+                marginTop: 10,
+              },
+            ]}
           >
-            Login
-          </Text>
-        </Text>
-      </ScrollView>
+            <Input
+              label="First Name"
+              icon="person-outline"
+              value={firstName}
+              onChange={setFirstName}
+              onValidate={(v) => validate("firstName", v)}
+              error={errors.firstName}
+            />
+
+            <Input
+              label="Last Name"
+              icon="person-outline"
+              value={lastName}
+              onChange={setLastName}
+              onValidate={(v) => validate("lastName", v)}
+              error={errors.lastName}
+            />
+
+            <Input
+              label="Email"
+              icon="mail-outline"
+              value={email}
+              onChange={setEmail}
+              onValidate={(v) => validate("email", v)}
+              error={errors.email}
+            />
+
+            <Input
+              label="Phone"
+              icon="call-outline"
+              value={phone}
+              onChange={setPhone}
+              onValidate={(v) => validate("phone", v)}
+              error={errors.phone}
+              keyboardType="numeric"
+            />
+
+            <PasswordInput
+              label="Password"
+              icon="lock-closed-outline"
+              value={password}
+              onChange={setPassword}
+              onValidate={(v) => validate("password", v)}
+              error={errors.password}
+              showPassword={showPassword}
+              onTogglePassword={() => setShowPassword(!showPassword)}
+            />
+
+            <TouchableOpacity
+              style={[
+                RegisterStyles.button,
+                !isFormValid && { opacity: 0.5 },
+              ]}
+              disabled={!isFormValid}
+              onPress={handleRegister}
+            >
+              <Text style={RegisterStyles.buttonText}>Register</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 /* INPUT COMPONENT */
 function Input({
-  icon,
   label,
+  icon,
   value,
-  setValue,
-  placeholder,
-  secure = false,
-  keyboard = "default",
+  onChange,
+  onValidate,
+  error,
+  secure,
+  keyboardType,
 }) {
   return (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={{ marginBottom: 18 }}>
+      <Text style={RegisterStyles.label}>{label}</Text>
 
-      <View style={styles.inputBox}>
+      <View
+        style={[
+          RegisterStyles.inputBox,
+          error && { borderColor: "red", borderWidth: 1 },
+        ]}
+      >
         <Ionicons name={icon} size={18} color={Colors.muted} />
         <TextInput
           value={value}
-          onChangeText={setValue}
-          placeholder={placeholder}
+          onChangeText={(v) => {
+            onChange(v);
+            onValidate(v);
+          }}
+          placeholder={label}
           placeholderTextColor={Colors.muted}
           secureTextEntry={secure}
-          keyboardType={keyboard}
-          autoCapitalize="none"
-          style={styles.input}
+          keyboardType={keyboardType}
+          style={RegisterStyles.input}
         />
       </View>
+
+      {error ? (
+        <Text style={{ color: "red", fontSize: 12 }}>{error}</Text>
+      ) : null}
     </View>
   );
 }
 
-/* STYLES */
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-  container: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  back: {
-    color: Colors.muted,
-    marginBottom: 16,
-    fontSize: 14,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  subtitle: {
-    color: Colors.muted,
-    marginTop: 6,
-    marginBottom: 28,
-  },
-  card: {
-    backgroundColor: Colors.card,
-    borderRadius: 22,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  inputGroup: {
-    marginBottom: 18,
-  },
-  label: {
-    color: Colors.muted,
-    fontSize: 13,
-    marginBottom: 6,
-  },
-  inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#111827",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-  },
-  input: {
-    flex: 1,
-    marginLeft: 10,
-    color: Colors.text,
-    fontSize: 14,
-  },
-  button: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  loginText: {
-    color: Colors.muted,
-    textAlign: "center",
-    marginTop: 22,
-  },
-  login: {
-    color: Colors.primary,
-    fontWeight: "600",
-  },
-});
+/* PASSWORD INPUT COMPONENT WITH TOGGLE */
+function PasswordInput({
+  label,
+  icon,
+  value,
+  onChange,
+  onValidate,
+  error,
+  showPassword,
+  onTogglePassword,
+}) {
+  return (
+    <View style={{ marginBottom: 18 }}>
+      <Text style={RegisterStyles.label}>{label}</Text>
+
+      <View
+        style={[
+          RegisterStyles.inputBox,
+          error && { borderColor: "red", borderWidth: 1 },
+        ]}
+      >
+        <Ionicons name={icon} size={18} color={Colors.muted} />
+        <TextInput
+          value={value}
+          onChangeText={(v) => {
+            onChange(v);
+            onValidate(v);
+          }}
+          placeholder={label}
+          placeholderTextColor={Colors.muted}
+          secureTextEntry={showPassword ? false : true}
+          style={RegisterStyles.input}
+        />
+        <TouchableOpacity onPress={onTogglePassword}>
+          <Ionicons
+            name={showPassword ? "eye-off" : "eye"}
+            size={18}
+            color={Colors.muted}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {error ? (
+        <Text style={{ color: "red", fontSize: 12 }}>{error}</Text>
+      ) : null}
+    </View>
+  );
+}
