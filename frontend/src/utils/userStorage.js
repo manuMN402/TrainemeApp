@@ -51,6 +51,17 @@ export const findUser = async (emailOrUserId, password) => {
   }
 };
 
+// Get user by email (to get user ID)
+export const getUserByEmail = async (email) => {
+  try {
+    const users = await getAllUsers();
+    return users.find(user => user.email.toLowerCase() === email.toLowerCase()) || null;
+  } catch (error) {
+    console.error('Error getting user by email:', error);
+    return null;
+  }
+};
+
 // Get user by user ID or email
 export const getUserByIdOrEmail = async (emailOrUserId) => {
   try {

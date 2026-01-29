@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import RegisterStyles from "../styles/registerStyles";
 import { Colors } from "../constants/colors";
 import { generateUniqueUserId } from "../utils/idGenerator";
-import { emailExists, saveUser } from "../utils/userStorage";
+import { emailExists, saveUser, getUserByEmail } from "../utils/userStorage";
 
 export default function RegisterScreen({ route, navigation }) {
   const role = route?.params?.role || "User";
@@ -83,9 +83,13 @@ export default function RegisterScreen({ route, navigation }) {
       const userExists = await emailExists(email);
       
       if (userExists) {
+        // Get the user ID for this email
+        const existingUser = await getUserByEmail(email);
+        const userIdText = existingUser ? `\n\nYour User ID: ${existingUser.userId}` : "";
+        
         Alert.alert(
           "Email Already Exists",
-          "This email is already registered. Please login instead.",
+          `This email is already registered. Please login instead.${userIdText}`,
           [
             { text: "Cancel", onPress: () => setLoading(false) },
             {
