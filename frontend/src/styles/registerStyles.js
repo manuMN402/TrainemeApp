@@ -48,7 +48,7 @@ export default StyleSheet.create({
   card: {
     backgroundColor: Colors.card,
     borderRadius: SPACING.RADIUS_XXL,
-    padding: SPACING.L,
+    padding: SPACING.M,
     borderWidth: 1,
     borderColor: Colors.border,
     marginHorizontal: 0,
@@ -75,7 +75,7 @@ export default StyleSheet.create({
     paddingVertical: SPACING.M,
     borderWidth: 1,
     borderColor: "#1E293B",
-    marginBottom: SPACING.L,
+    marginBottom: SPACING.M,
     minHeight: DIMENSIONS.INPUT_HEIGHT,
   },
 

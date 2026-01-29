@@ -1,5 +1,8 @@
 import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "../constants/colors";
+import componentStyles from "../styles/componentStyles";
+import { SPACING, FONT_SIZES } from "../utils/responsiveDesign";
 
 export default function BookingCard({ booking, onCancel }) {
   const getStatusColor = (status) => {
@@ -30,44 +33,35 @@ export default function BookingCard({ booking, onCancel }) {
 
   return (
     <View
-      style={{
-        backgroundColor: "#1a1d2e",
-        borderRadius: 12,
-        padding: 16,
-        marginHorizontal: 16,
-        marginVertical: 8,
-        borderLeftWidth: 4,
-        borderLeftColor: getStatusColor(booking.status),
-      }}
+      style={[
+        componentStyles.bookingCard,
+        {
+          borderLeftWidth: 4,
+          borderLeftColor: getStatusColor(booking.status),
+        },
+      ]}
     >
       {/* Header: Trainer Name and Status */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 12,
-        }}
-      >
-        <View>
-          <Text
-            style={{ fontSize: 16, fontWeight: "700", color: "white" }}
-          >
+      <View style={componentStyles.bookingCardHeader}>
+        <View style={{ flex: 1, marginRight: SPACING.L }}>
+          <Text style={componentStyles.bookingCardTitle}>
             {booking.trainer_name}
           </Text>
-          <Text style={{ fontSize: 12, color: "#999", marginTop: 2 }}>
+          <Text style={componentStyles.bookingCardDetail}>
             {booking.trainer_specialty}
           </Text>
         </View>
         <View
-          style={{
-            backgroundColor: getStatusColor(booking.status),
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 20,
-          }}
+          style={[
+            componentStyles.bookingCardStatus,
+            getStatusColor(booking.status) === "#f59e0b"
+              ? componentStyles.bookingCardStatusPending
+              : getStatusColor(booking.status) === "#10b981"
+              ? componentStyles.bookingCardStatusConfirmed
+              : componentStyles.bookingCardStatusCancelled,
+          ]}
         >
-          <Text style={{ color: "white", fontSize: 11, fontWeight: "600" }}>
+          <Text style={{ color: "white", fontSize: FONT_SIZES.BODY_XS, fontWeight: "600" }}>
             {booking.status}
           </Text>
         </View>
@@ -77,22 +71,22 @@ export default function BookingCard({ booking, onCancel }) {
       <View
         style={{
           backgroundColor: "#0f1419",
-          borderRadius: 8,
-          padding: 12,
-          marginBottom: 12,
+          borderRadius: SPACING.RADIUS_M,
+          padding: SPACING.L,
+          marginBottom: SPACING.L,
         }}
       >
         <View
-          style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}
+          style={{ flexDirection: "row", alignItems: "center", marginBottom: SPACING.M }}
         >
-          <Ionicons name="calendar" size={16} color="#8b5cf6" />
-          <Text style={{ color: "#ccc", fontSize: 13, marginLeft: 8 }}>
+          <Ionicons name="calendar" size={18} color={Colors.primary} />
+          <Text style={[componentStyles.bookingCardDetail, { marginBottom: 0, marginLeft: SPACING.M }]}>
             {booking.booking_date}
           </Text>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons name="time" size={16} color="#8b5cf6" />
-          <Text style={{ color: "#ccc", fontSize: 13, marginLeft: 8 }}>
+          <Ionicons name="time" size={18} color={Colors.primary} />
+          <Text style={[componentStyles.bookingCardDetail, { marginBottom: 0, marginLeft: SPACING.M }]}>
             {booking.start_time} - {booking.end_time}
           </Text>
         </View>
@@ -104,12 +98,12 @@ export default function BookingCard({ booking, onCancel }) {
           onPress={handleCancel}
           style={{
             backgroundColor: "#ef4444",
-            paddingVertical: 10,
-            borderRadius: 8,
+            paddingVertical: SPACING.L,
+            borderRadius: SPACING.RADIUS_M,
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>
+          <Text style={{ color: "white", fontWeight: "600", fontSize: FONT_SIZES.BODY_M }}>
             Cancel Booking
           </Text>
         </TouchableOpacity>
@@ -117,31 +111,25 @@ export default function BookingCard({ booking, onCancel }) {
 
       {/* Other Status Actions */}
       {booking.status === "Confirmed" && (
-        <View style={{ flexDirection: "row", gap: 8 }}>
+        <View style={componentStyles.bookingCardActions}>
           <TouchableOpacity
-            style={{
-              flex: 1,
-              backgroundColor: "#8b5cf6",
-              paddingVertical: 10,
-              borderRadius: 8,
-              alignItems: "center",
-            }}
+            style={[
+              componentStyles.bookingCardActionButton,
+              { backgroundColor: Colors.primary },
+            ]}
           >
-            <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>
-              Message Trainer
+            <Text style={{ color: "white", fontWeight: "600", fontSize: FONT_SIZES.BODY_S }}>
+              Message
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{
-              flex: 1,
-              backgroundColor: "#374151",
-              paddingVertical: 10,
-              borderRadius: 8,
-              alignItems: "center",
-            }}
+            style={[
+              componentStyles.bookingCardActionButton,
+              { backgroundColor: "#374151" },
+            ]}
           >
-            <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>
-              Add to Calendar
+            <Text style={{ color: "white", fontWeight: "600", fontSize: FONT_SIZES.BODY_S }}>
+              Calendar
             </Text>
           </TouchableOpacity>
         </View>

@@ -79,6 +79,10 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigation.navigate("ForgotPassword");
+  };
+
   return (
     <SafeAreaView style={RegisterStyles.safe}>
       {/* HEADER WITH BACK BUTTON - TOP LEFT */}
@@ -148,8 +152,11 @@ export default function LoginScreen({ navigation }) {
           />
 
           {/* FORGOT PASSWORD LINK */}
-          <TouchableOpacity style={{ marginBottom: 24 }}>
-            <Text style={{ color: Colors.primary, fontSize: 14 }}>
+          <TouchableOpacity 
+            style={{ marginBottom: 24 }}
+            onPress={handleForgotPassword}
+          >
+            <Text style={{ color: Colors.primary, fontSize: 14, fontWeight: "600" }}>
               Forgot Password?
             </Text>
           </TouchableOpacity>

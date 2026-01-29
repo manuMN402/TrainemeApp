@@ -243,8 +243,8 @@ export default function RegisterScreen({ route, navigation }) {
       >
         <ScrollView
           contentContainerStyle={{
-            paddingVertical: 20,
-            paddingHorizontal: 20,
+            paddingVertical: 12,
+            paddingHorizontal: 16,
           }}
           scrollEnabled={true}
         >
@@ -252,8 +252,8 @@ export default function RegisterScreen({ route, navigation }) {
           <View
             style={{
               alignItems: "center",
-              marginBottom: 10,
-              paddingHorizontal: 20,
+              marginBottom: 12,
+              paddingHorizontal: 16,
             }}
           >
             <Text style={RegisterStyles.title}>{role} Registration</Text>
@@ -270,7 +270,7 @@ export default function RegisterScreen({ route, navigation }) {
                 borderWidth: 1,
                 borderColor: "#6366F1",
                 width: "100%",
-                marginTop: 10,
+                marginTop: 8,
               },
             ]}
           >
@@ -356,11 +356,11 @@ function Input({
   const isPhoneField = keyboardType === "numeric";
 
   return (
-    <View style={{ marginBottom: 18 }}>
+    <View style={{ marginBottom: 12 }}>
       {/* Label with character count for phone */}
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <Text style={RegisterStyles.label}>{label}</Text>
-        {isPhoneField && value && (
+        {isPhoneField && value ? (
           <Text style={{
             fontSize: 11,
             color: value.length === 10 ? "#10b981" : "#ef4444",
@@ -368,7 +368,7 @@ function Input({
           }}>
             {value.length}/10
           </Text>
-        )}
+        ) : null}
       </View>
 
       <View
@@ -393,9 +393,9 @@ function Input({
           maxLength={isPhoneField ? 10 : undefined}
         />
         {/* Green checkmark for valid fields */}
-        {!error && value && (
+        {!error && value ? (
           <Ionicons name="checkmark-circle" size={18} color="#10b981" />
-        )}
+        ) : null}
       </View>
 
       {/* Error Message */}
@@ -435,7 +435,7 @@ function PasswordInput({
   const strength = getPasswordStrength(value);
 
   return (
-    <View style={{ marginBottom: 18 }}>
+    <View style={{ marginBottom: 12 }}>
       <Text style={RegisterStyles.label}>{label}</Text>
 
       <View
@@ -466,7 +466,7 @@ function PasswordInput({
       </View>
 
       {/* Password Strength Indicator */}
-      {value && !error && strength && (
+      {value && !error && strength ? (
         <View style={{ flexDirection: "row", alignItems: "center", marginTop: 6 }}>
           <View
             style={{
@@ -481,7 +481,7 @@ function PasswordInput({
             {strength.text}
           </Text>
         </View>
-      )}
+      ) : null}
 
       {/* Error Message */}
       {error ? (

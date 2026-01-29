@@ -4,6 +4,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RoleSelectScreen from "../screens/RoleSelectScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+import TrainerRegisterScreen from "../screens/TrainerRegisterScreen";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
+import OTPVerificationScreen from "../screens/OTPVerificationScreen";
+import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 
 import UserDashboard from "../dashboard/UserDashboard";
 import UserHome from "../user/UserHome";
@@ -13,10 +17,7 @@ import SearchTrainer from "../user/SearchTrainer";
 import TrainerDetail from "../user/TrainerDetail";
 import BookingHistory from "../user/BookingHistory";
 
-import TrainerHome from "../trainer/TrainerHome";
-import TrainerProfile from "../trainer/TrainerProfile";
-import Availability from "../trainer/Availability";
-import BookingRequests from "../trainer/BookingRequests";
+import TrainerDashboard from "../trainer/TrainerDashboard";
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +33,10 @@ export default function AppNavigator() {
         <Stack.Screen name="RoleSelect" component={RoleSelectScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="TrainerRegister" component={TrainerRegisterScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
 
         {/* USER SCREENS - Using UserDashboard with tab navigation */}
         <Stack.Screen 
@@ -46,11 +51,12 @@ export default function AppNavigator() {
         <Stack.Screen name="TrainerDetail" component={TrainerDetail} />
         <Stack.Screen name="BookingHistory" component={BookingHistory} />
 
-        {/* TRAINER SCREENS */}
-        <Stack.Screen name="TrainerHome" component={TrainerHome} />
-        <Stack.Screen name="TrainerProfile" component={TrainerProfile} />
-        <Stack.Screen name="Availability" component={Availability} />
-        <Stack.Screen name="BookingRequests" component={BookingRequests} />
+        {/* TRAINER SCREENS - Using TrainerDashboard with tab navigation */}
+        <Stack.Screen 
+          name="TrainerDashboard" 
+          component={TrainerDashboard}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

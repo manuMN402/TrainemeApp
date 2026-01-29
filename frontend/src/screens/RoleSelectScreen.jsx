@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../constants/colors";
 import { roleSelectStyles as styles } from "../styles/roleSelectStyles";
@@ -16,9 +16,9 @@ export default function RoleSelectScreen({ navigation }) {
             style={{ 
               width: 120, 
               height: 120, 
-              borderRadius: 60,
-              resizeMode: "contain" 
+              borderRadius: 60
             }}
+            resizeMode="contain"
           />
         </View>
 
@@ -50,7 +50,15 @@ export default function RoleSelectScreen({ navigation }) {
         <TouchableOpacity
           style={styles.card}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate("Register", { role: "Trainer" })}
+          onPress={() => {
+            console.log("Trainer button pressed");
+            try {
+              navigation.navigate("TrainerRegister");
+            } catch (error) {
+              console.error("Navigation error:", error);
+              Alert.alert("Error", "Failed to navigate to trainer registration");
+            }
+          }}
         >
           <View style={styles.iconCircle}>
             <Ionicons name="people" size={24} color={Colors.primary} />

@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, FlatList, SafeAreaView, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, TextInput } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { messagesData } from "../data/messages";

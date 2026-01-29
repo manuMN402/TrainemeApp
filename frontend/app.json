@@ -7,17 +7,18 @@
     "userInterfaceStyle": "dark",
     "assetBundlePatterns": ["**/*"],
     "web": {
-      "port": 3000
+      "port": 3000,
+      "bundler": "metro"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#070B1A"
-      }
+      },
+      "enableSound": false
     },
     "ios": {
-      "supportsTablet": true
-    },
-    "newArchEnabled": false
+      "supportsTablet": true,
+      "enableSound": false
+    }
   }
 }

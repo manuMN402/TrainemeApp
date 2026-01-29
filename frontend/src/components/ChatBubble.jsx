@@ -1,35 +1,37 @@
 import { View, Text } from "react-native";
+import { Colors } from "../constants/colors";
+import componentStyles from "../styles/componentStyles";
+import { SPACING, FONT_SIZES } from "../utils/responsiveDesign";
 
 export default function ChatBubble({ message, isUser }) {
   return (
     <View
       style={{
         flexDirection: isUser ? "row-reverse" : "row",
-        marginBottom: 12,
-        paddingHorizontal: 16,
+        marginBottom: SPACING.L,
+        paddingHorizontal: SPACING.SCREEN_PADDING_H,
+        justifyContent: isUser ? "flex-end" : "flex-start",
       }}
     >
       <View
-        style={{
-          maxWidth: "70%",
-          backgroundColor: isUser ? "#8b5cf6" : "#1a1d2e",
-          borderRadius: 16,
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          borderTopLeftRadius: isUser ? 16 : 0,
-          borderTopRightRadius: isUser ? 0 : 16,
-        }}
+        style={[
+          componentStyles.chatBubble,
+          isUser
+            ? componentStyles.chatBubbleSender
+            : componentStyles.chatBubbleReceiver,
+        ]}
       >
-        <Text style={{ color: "white", fontSize: 14 }}>
+        <Text
+          style={[
+            componentStyles.chatBubbleText,
+            isUser
+              ? componentStyles.chatBubbleTextSender
+              : componentStyles.chatBubbleTextReceiver,
+          ]}
+        >
           {message.text}
         </Text>
-        <Text
-          style={{
-            color: isUser ? "rgba(255,255,255,0.7)" : "#666",
-            fontSize: 11,
-            marginTop: 4,
-          }}
-        >
+        <Text style={componentStyles.chatBubbleTime}>
           {message.timestamp}
         </Text>
       </View>
