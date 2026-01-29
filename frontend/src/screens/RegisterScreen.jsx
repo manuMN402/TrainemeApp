@@ -6,12 +6,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import RegisterStyles from "../styles/registerStyles";
 import { Colors } from "../constants/colors";
+import { generateUniqueUserId } from "../utils/idGenerator";
 
 export default function RegisterScreen({ route, navigation }) {
   const role = route?.params?.role || "User";
@@ -23,6 +25,8 @@ export default function RegisterScreen({ route, navigation }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [userId, setUserId] = useState("");
 
   /* 🔍 LIVE VALIDATION */
   const validate = (field, value) => {
@@ -67,11 +71,17 @@ export default function RegisterScreen({ route, navigation }) {
     Object.values(errors).every((e) => e === "");
 
   const handleRegister = () => {
-    if (!isFormValid) return;
+    // Generate unique user ID
+    const generatedUserId = generateUniqueUserId();
+    setUserId(generatedUserId);
+    setShowSuccessModal(true);
+  };
 
+  const handleContinueAfterSuccess = () => {
     const nextScreen = role === "Trainer" ? "TrainerHome" : "UserDashboard";
     navigation.navigate(nextScreen, {
       userData: {
+        userId,
         firstName,
         lastName,
         email,
@@ -197,6 +207,169 @@ export default function RegisterScreen({ route, navigation }) {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* SUCCESS MODAL - SHOW USER ID */}
+      <Modal visible={showSuccessModal} transparent animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#0f1419",
+              borderRadius: 16,
+              padding: 24,
+              alignItems: "center",
+              borderWidth: 1,
+              borderColor: "#333",
+            }}
+          >
+            {/* SUCCESS ICON */}
+            <View
+              style={{
+                width: 70,
+                height: 70,
+                borderRadius: 35,
+                backgroundColor: "#10b981",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <Ionicons name="checkmark" size={40} color="white" />
+            </View>
+
+            {/* TITLE */}
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "700",
+                color: "white",
+                marginBottom: 10,
+                textAlign: "center",
+              }}
+            >
+              Registration Successful!
+            </Text>
+
+            {/* SUBTITLE */}
+            <Text
+              style={{
+                fontSize: 14,
+                color: "#999",
+                marginBottom: 24,
+                textAlign: "center",
+              }}
+            >
+              Your account has been created. Save your unique ID to login.
+            </Text>
+
+            {/* USER ID SECTION */}
+            <View
+              style={{
+                backgroundColor: "#1a1d2e",
+                borderRadius: 12,
+                padding: 16,
+                marginBottom: 24,
+                width: "100%",
+                borderWidth: 1,
+                borderColor: "#6366f1",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "#999",
+                  marginBottom: 8,
+                  textAlign: "center",
+                }}
+              >
+                Your Unique User ID
+              </Text>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "700",
+                  color: "#6366f1",
+                  textAlign: "center",
+                  fontFamily: "monospace",
+                  letterSpacing: 1,
+                }}
+              >
+                {userId}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 11,
+                  color: "#666",
+                  marginTop: 12,
+                  textAlign: "center",
+                }}
+              >
+                Use this ID to login next time
+              </Text>
+            </View>
+
+            {/* USER DETAILS SUMMARY */}
+            <View
+              style={{
+                width: "100%",
+                backgroundColor: "#1a1d2e",
+                borderRadius: 12,
+                padding: 16,
+                marginBottom: 24,
+              }}
+            >
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 11, color: "#999" }}>Name</Text>
+                <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
+                  {firstName} {lastName}
+                </Text>
+              </View>
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 11, color: "#999" }}>Email</Text>
+                <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
+                  {email}
+                </Text>
+              </View>
+              <View>
+                <Text style={{ fontSize: 11, color: "#999" }}>Role</Text>
+                <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
+                  {role}
+                </Text>
+              </View>
+            </View>
+
+            {/* CONTINUE BUTTON */}
+            <TouchableOpacity
+              onPress={handleContinueAfterSuccess}
+              style={{
+                backgroundColor: "#6366f1",
+                paddingVertical: 14,
+                paddingHorizontal: 24,
+                borderRadius: 12,
+                width: "100%",
+              }}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 16,
+                  fontWeight: "700",
+                  textAlign: "center",
+                }}
+              >
+                Continue to Dashboard
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
