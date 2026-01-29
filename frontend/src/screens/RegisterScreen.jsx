@@ -6,7 +6,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Modal,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,51 +26,95 @@ export default function RegisterScreen({ route, navigation }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* 🔍 LIVE VALIDATION */
+  /* 🔍 REAL-TIME VALIDATION */
   const validate = (field, value) => {
     let error = "";
 
+    // First Name Validation
     if (field === "firstName") {
-      if (value.trim().length < 2) {
+      if (!value || value.trim().length === 0) {
+        error = "First name is required";
+      } else if (!/^[a-zA-Z\s]*$/.test(value)) {
+        error = "First name can only contain letters";
+      } else if (value.trim().length < 2) {
         error = "First name must be at least 2 characters";
-      } else if (/\s{2,}/.test(value)) {
-        error = "First name cannot have multiple spaces";
       }
     }
 
-    if (field === "lastName" && value.trim().length < 2) {
-      error = "Last name must be at least 2 characters";
+    // Last Name Validation
+    if (field === "lastName") {
+      if (!value || value.trim().length === 0) {
+        error = "Last name is required";
+      } else if (!/^[a-zA-Z\s]*$/.test(value)) {
+        error = "Last name can only contain letters";
+      } else if (value.trim().length < 1) {
+        error = "Last name must be at least 1 character";
+      }
     }
 
-    if (
-      field === "email" &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    ) {
-      error = "Enter a valid email";
+    // Email Validation
+    if (field === "email") {
+      if (!value || value.trim().length === 0) {
+        error = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = "Please enter a valid email (e.g., user@gmail.com)";
+      }
     }
 
-    if (field === "phone" && value.length !== 10) {
-      error = "Phone must be 10 digits";
+    // Phone Validation
+    if (field === "phone") {
+      if (!value) {
+        error = "Phone number is required";
+      } else if (!/^\d*$/.test(value)) {
+        error = "Phone can only contain numbers";
+      } else if (value.length !== 10) {
+        error = `Phone must be exactly 10 digits (${value.length}/10)`;
+      }
     }
 
-    if (field === "password" && value.length < 6) {
-      error = "Password must be at least 6 characters";
+    // Password Validation
+    if (field === "password") {
+      if (!value || value.length === 0) {
+        error = "Password is required";
+      } else if (value.length < 6) {
+        error = "Password must be at least 6 characters";
+      } else if (!/[A-Z]/.test(value)) {
+        error = "Password must contain at least 1 uppercase letter";
+      } else if (!/[a-z]/.test(value)) {
+        error = "Password must contain at least 1 lowercase letter";
+      } else if (!/\d/.test(value)) {
+        error = "Password must contain at least 1 number";
+      }
     }
 
     setErrors((prev) => ({ ...prev, [field]: error }));
   };
 
+  // Check if form is valid (all fields filled and no errors)
   const isFormValid =
-    firstName &&
-    lastName &&
-    email &&
-    phone &&
-    password &&
+    firstName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
+    email.trim().length > 0 &&
+    phone.length > 0 &&
+    password.length > 0 &&
     Object.values(errors).every((e) => e === "");
+
+  // Get password strength indicator
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return null;
+    let strength = 0;
+    if (pwd.length >= 6) strength++;
+    if (pwd.length >= 8) strength++;
+    if (/[A-Z]/.test(pwd)) strength++;
+    if (/[a-z]/.test(pwd)) strength++;
+    if (/\d/.test(pwd)) strength++;
+    
+    if (strength <= 2) return { text: "Weak", color: "#ef4444" };
+    if (strength === 3 || strength === 4) return { text: "Medium", color: "#f59e0b" };
+    return { text: "Strong", color: "#10b981" };
+  };
 
   const handleRegister = async () => {
     if (!isFormValid) {
@@ -123,7 +166,6 @@ export default function RegisterScreen({ route, navigation }) {
       // Generate unique user ID
       const generatedUserId = generateUniqueUserId();
       console.log("Generated User ID:", generatedUserId);
-      setUserId(generatedUserId);
 
       // Save user data to local storage
       const userData = {
@@ -141,7 +183,31 @@ export default function RegisterScreen({ route, navigation }) {
       console.log("User saved:", saved);
       
       if (saved) {
-        setShowSuccessModal(true);
+        // Show success alert with User ID
+        const nextScreen = role === "Trainer" ? "TrainerHome" : "UserDashboard";
+        
+        Alert.alert(
+          "Registration Successful!",
+          `Your User ID: ${generatedUserId}\n\nSave this ID to login.`,
+          [
+            {
+              text: "Continue",
+              onPress: () => {
+                navigation.navigate(nextScreen, {
+                  userData: {
+                    userId: generatedUserId,
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    password,
+                  },
+                  role,
+                });
+              },
+            },
+          ]
+        );
       } else {
         Alert.alert("Error", "Failed to create account. Please try again.");
       }
@@ -153,20 +219,6 @@ export default function RegisterScreen({ route, navigation }) {
     }
   };
 
-  const handleContinueAfterSuccess = () => {
-    const nextScreen = role === "Trainer" ? "TrainerHome" : "UserDashboard";
-    navigation.navigate(nextScreen, {
-      userData: {
-        userId,
-        firstName,
-        lastName,
-        email,
-        phone,
-        password,
-      },
-      role,
-    });
-  };
 
   return (
     <SafeAreaView style={RegisterStyles.safe}>
@@ -286,188 +338,6 @@ export default function RegisterScreen({ route, navigation }) {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* SUCCESS MODAL - SHOW USER ID */}
-      <Modal visible={showSuccessModal} transparent animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 20,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#0f1419",
-              borderRadius: 16,
-              padding: 24,
-              alignItems: "center",
-              borderWidth: 1,
-              borderColor: "#333",
-              position: "relative",
-            }}
-          >
-            {/* CLOSE BUTTON */}
-            <TouchableOpacity
-              onPress={() => setShowSuccessModal(false)}
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                width: 36,
-                height: 36,
-                borderRadius: 18,
-                backgroundColor: "#1a1d2e",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 10,
-              }}
-            >
-              <Ionicons name="close" size={24} color="whitesmoke" />
-            </TouchableOpacity>
-
-            {/* SUCCESS ICON */}
-            <View
-              style={{
-                width: 70,
-                height: 70,
-                borderRadius: 35,
-                backgroundColor: "#10b981",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <Ionicons name="checkmark" size={40} color="white" />
-            </View>
-
-            {/* TITLE */}
-            <Text
-              style={{
-                fontSize: 24,
-                fontWeight: "700",
-                color: "white",
-                marginBottom: 10,
-                textAlign: "center",
-              }}
-            >
-              Registration Successful!
-            </Text>
-
-            {/* SUBTITLE */}
-            <Text
-              style={{
-                fontSize: 14,
-                color: "#999",
-                marginBottom: 24,
-                textAlign: "center",
-              }}
-            >
-              Your account has been created. Save your unique ID to login.
-            </Text>
-
-            {/* USER ID SECTION */}
-            <View
-              style={{
-                backgroundColor: "#1a1d2e",
-                borderRadius: 12,
-                padding: 16,
-                marginBottom: 24,
-                width: "100%",
-                borderWidth: 1,
-                borderColor: "#6366f1",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: "#999",
-                  marginBottom: 8,
-                  textAlign: "center",
-                }}
-              >
-                Your Unique User ID
-              </Text>
-              <Text
-                style={{
-                  fontSize: 20,
-                  fontWeight: "700",
-                  color: "#6366f1",
-                  textAlign: "center",
-                  fontFamily: "monospace",
-                  letterSpacing: 1,
-                }}
-              >
-                {userId}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 11,
-                  color: "#666",
-                  marginTop: 12,
-                  textAlign: "center",
-                }}
-              >
-                Use this ID to login next time
-              </Text>
-            </View>
-
-            {/* USER DETAILS SUMMARY */}
-            <View
-              style={{
-                width: "100%",
-                backgroundColor: "#1a1d2e",
-                borderRadius: 12,
-                padding: 16,
-                marginBottom: 24,
-              }}
-            >
-              <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 11, color: "#999" }}>Name</Text>
-                <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
-                  {firstName} {lastName}
-                </Text>
-              </View>
-              <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 11, color: "#999" }}>Email</Text>
-                <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
-                  {email}
-                </Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 11, color: "#999" }}>Role</Text>
-                <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
-                  {role}
-                </Text>
-              </View>
-            </View>
-
-            {/* CONTINUE BUTTON */}
-            <TouchableOpacity
-              onPress={handleContinueAfterSuccess}
-              style={{
-                backgroundColor: "#6366f1",
-                paddingVertical: 14,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-                width: "100%",
-              }}
-            >
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 16,
-                  fontWeight: "700",
-                  textAlign: "center",
-                }}
-              >
-                Continue to Dashboard
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -483,14 +353,29 @@ function Input({
   secure,
   keyboardType,
 }) {
+  const isPhoneField = keyboardType === "numeric";
+
   return (
     <View style={{ marginBottom: 18 }}>
-      <Text style={RegisterStyles.label}>{label}</Text>
+      {/* Label with character count for phone */}
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={RegisterStyles.label}>{label}</Text>
+        {isPhoneField && value && (
+          <Text style={{
+            fontSize: 11,
+            color: value.length === 10 ? "#10b981" : "#ef4444",
+            fontWeight: "600"
+          }}>
+            {value.length}/10
+          </Text>
+        )}
+      </View>
 
       <View
         style={[
           RegisterStyles.inputBox,
-          error && { borderColor: "red", borderWidth: 1 },
+          error && { borderColor: "red", borderWidth: 1.5 },
+          !error && value && { borderColor: "#10b981", borderWidth: 1 },
         ]}
       >
         <Ionicons name={icon} size={18} color={Colors.muted} />
@@ -505,17 +390,23 @@ function Input({
           secureTextEntry={secure}
           keyboardType={keyboardType}
           style={RegisterStyles.input}
+          maxLength={isPhoneField ? 10 : undefined}
         />
+        {/* Green checkmark for valid fields */}
+        {!error && value && (
+          <Ionicons name="checkmark-circle" size={18} color="#10b981" />
+        )}
       </View>
 
+      {/* Error Message */}
       {error ? (
-        <Text style={{ color: "red", fontSize: 12 }}>{error}</Text>
+        <Text style={{ color: "red", fontSize: 12, marginTop: 6 }}>{error}</Text>
       ) : null}
     </View>
   );
 }
 
-/* PASSWORD INPUT COMPONENT WITH TOGGLE */
+/* PASSWORD INPUT COMPONENT WITH TOGGLE & STRENGTH */
 function PasswordInput({
   label,
   icon,
@@ -526,6 +417,23 @@ function PasswordInput({
   showPassword,
   onTogglePassword,
 }) {
+  // Get password strength
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return null;
+    let strength = 0;
+    if (pwd.length >= 6) strength++;
+    if (pwd.length >= 8) strength++;
+    if (/[A-Z]/.test(pwd)) strength++;
+    if (/[a-z]/.test(pwd)) strength++;
+    if (/\d/.test(pwd)) strength++;
+    
+    if (strength <= 2) return { text: "Weak", color: "#ef4444" };
+    if (strength === 3 || strength === 4) return { text: "Medium", color: "#f59e0b" };
+    return { text: "Strong", color: "#10b981" };
+  };
+
+  const strength = getPasswordStrength(value);
+
   return (
     <View style={{ marginBottom: 18 }}>
       <Text style={RegisterStyles.label}>{label}</Text>
@@ -557,8 +465,27 @@ function PasswordInput({
         </TouchableOpacity>
       </View>
 
+      {/* Password Strength Indicator */}
+      {value && !error && strength && (
+        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 6 }}>
+          <View
+            style={{
+              height: 4,
+              borderRadius: 2,
+              flex: 1,
+              backgroundColor: strength.color,
+              marginRight: 8,
+            }}
+          />
+          <Text style={{ fontSize: 11, color: strength.color, fontWeight: "600" }}>
+            {strength.text}
+          </Text>
+        </View>
+      )}
+
+      {/* Error Message */}
       {error ? (
-        <Text style={{ color: "red", fontSize: 12 }}>{error}</Text>
+        <Text style={{ color: "red", fontSize: 12, marginTop: 6 }}>{error}</Text>
       ) : null}
     </View>
   );

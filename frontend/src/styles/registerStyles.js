@@ -1,7 +1,13 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet } from "react-native";
 import { Colors } from "../constants/colors";
-
-const { width } = Dimensions.get("window");
+import {
+  FONT_SIZES,
+  SPACING,
+  DIMENSIONS,
+  SHADOWS,
+  IS_SMALL_DEVICE,
+  IS_EXTRA_LARGE_DEVICE,
+} from "../utils/responsiveDesign";
 
 export default StyleSheet.create({
   /* SCREEN */
@@ -11,45 +17,51 @@ export default StyleSheet.create({
   },
 
   container: {
-    padding: 20,
-    paddingTop: 60,
+    padding: SPACING.SCREEN_PADDING_H,
+    paddingTop: IS_SMALL_DEVICE ? SPACING.XXXL : SPACING.XXXL,
   },
 
   /* BACK */
   back: {
     color: Colors.muted,
-    fontSize: 14,
-    marginBottom: 20,
+    fontSize: FONT_SIZES.BODY_M,
+    marginBottom: SPACING.L,
   },
 
   /* HEADER */
   title: {
-    fontSize: 28,
+    fontSize: FONT_SIZES.HEADING_L,
     fontWeight: "700",
     color: Colors.text,
+    marginBottom: SPACING.S,
   },
 
   subtitle: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.BODY_M,
     color: Colors.muted,
-    marginTop: 6,
-    marginBottom: 24,
+    marginTop: SPACING.S,
+    marginBottom: SPACING.XXL,
+    lineHeight: FONT_SIZES.BODY_M * 1.4,
   },
 
   /* CARD */
   card: {
     backgroundColor: Colors.card,
-    borderRadius: 22,
-    padding: 20,
+    borderRadius: SPACING.RADIUS_XXL,
+    padding: SPACING.L,
     borderWidth: 1,
     borderColor: Colors.border,
+    marginHorizontal: 0,
+    maxWidth: IS_EXTRA_LARGE_DEVICE ? 600 : "100%",
+    alignSelf: IS_EXTRA_LARGE_DEVICE ? "center" : "auto",
+    width: IS_EXTRA_LARGE_DEVICE ? 600 : "100%",
   },
 
   /* LABEL */
   label: {
     color: Colors.text,
-    fontSize: 13,
-    marginBottom: 6,
+    fontSize: FONT_SIZES.LABEL,
+    marginBottom: SPACING.S,
     fontWeight: "500",
   },
 
@@ -58,46 +70,48 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#111827",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
+    borderRadius: SPACING.RADIUS_M,
+    paddingHorizontal: SPACING.L,
+    paddingVertical: SPACING.M,
     borderWidth: 1,
     borderColor: "#1E293B",
-    marginBottom: 16,
+    marginBottom: SPACING.L,
+    minHeight: DIMENSIONS.INPUT_HEIGHT,
   },
 
   input: {
     flex: 1,
-    marginLeft: 10,
-    fontSize: 14,
+    marginLeft: SPACING.M,
+    fontSize: FONT_SIZES.BODY_M,
     color: Colors.text,
   },
 
   /* BUTTON */
   button: {
-    marginTop: 10,
+    marginTop: SPACING.M,
     backgroundColor: Colors.primary,
-    paddingVertical: 16,
-    borderRadius: 16,
+    paddingVertical: SPACING.L,
+    paddingHorizontal: SPACING.L,
+    borderRadius: SPACING.RADIUS_L,
     alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    minHeight: DIMENSIONS.BUTTON_HEIGHT,
+    justifyContent: "center",
+    ...SHADOWS.MEDIUM,
   },
 
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: FONT_SIZES.BODY_L,
     fontWeight: "600",
   },
 
   /* LOGIN TEXT */
   loginText: {
-    marginTop: 24,
+    marginTop: SPACING.XXL,
     textAlign: "center",
     color: Colors.muted,
-    fontSize: 13,
+    fontSize: FONT_SIZES.BODY_S,
+    lineHeight: FONT_SIZES.BODY_S * 1.5,
   },
 
   login: {

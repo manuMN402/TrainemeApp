@@ -1,5 +1,12 @@
 import { StyleSheet, Platform } from "react-native";
 import { Colors } from "../constants/colors";
+import {
+  FONT_SIZES,
+  SPACING,
+  SHADOWS,
+  IS_SMALL_DEVICE,
+  IS_EXTRA_LARGE_DEVICE,
+} from "../utils/responsiveDesign";
 
 export const roleSelectStyles = StyleSheet.create({
   wrapper: {
@@ -10,79 +17,81 @@ export const roleSelectStyles = StyleSheet.create({
   },
 
   container: {
-    width: Platform.OS === "web" ? 420 : "100%",
-    paddingHorizontal: 20,
-    paddingTop: 80,
+    width: IS_EXTRA_LARGE_DEVICE ? 600 : Platform.OS === "web" ? 420 : "100%",
+    paddingHorizontal: SPACING.SCREEN_PADDING_H,
+    paddingTop: IS_SMALL_DEVICE ? SPACING.XXXL : SPACING.XXXL,
     alignItems: "center",
   },
 
   logoCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: IS_SMALL_DEVICE ? 110 : 140,
+    height: IS_SMALL_DEVICE ? 110 : 140,
+    borderRadius: IS_SMALL_DEVICE ? 55 : 70,
     backgroundColor: "#070B1A",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
-    borderWidth: 8,
+    marginBottom: SPACING.L,
+    borderWidth: SPACING.M,
     borderColor: "#6366f1",
-    shadowColor: "#6366f1",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 10,
+    ...SHADOWS.HEAVY,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: FONT_SIZES.HEADING_L,
     fontWeight: "700",
     color: Colors.primary,
-    marginBottom: 6,
+    marginBottom: SPACING.S,
   },
 
   subtitle: {
     color: Colors.muted,
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: SPACING.XXXL,
+    fontSize: FONT_SIZES.BODY_M,
+    lineHeight: FONT_SIZES.BODY_M * 1.4,
   },
 
   card: {
     width: "100%",
     backgroundColor: Colors.card,
-    borderRadius: 18,
-    padding: 18,
+    borderRadius: SPACING.RADIUS_L,
+    padding: SPACING.L,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 18,
+    marginBottom: SPACING.L,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...SHADOWS.LIGHT,
   },
 
   iconCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
+    width: SPACING.XXXL,
+    height: SPACING.XXXL,
+    borderRadius: SPACING.RADIUS_M,
     backgroundColor: "#111827",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
+    marginRight: SPACING.L,
   },
 
   cardTitle: {
     color: Colors.text,
-    fontSize: 16,
+    fontSize: FONT_SIZES.BODY_L,
     fontWeight: "600",
+    marginBottom: SPACING.S,
   },
 
   cardSub: {
     color: Colors.muted,
-    marginTop: 4,
-    fontSize: 13,
+    fontSize: FONT_SIZES.BODY_S,
+    lineHeight: FONT_SIZES.BODY_S * 1.4,
   },
 
   loginText: {
     color: Colors.muted,
-    marginTop: 30,
+    marginTop: SPACING.XXXL,
+    fontSize: FONT_SIZES.BODY_S,
+    textAlign: "center",
   },
 
   login: {
