@@ -74,13 +74,20 @@ export default function RegisterScreen({ route, navigation }) {
     Object.values(errors).every((e) => e === "");
 
   const handleRegister = async () => {
-    if (!isFormValid) return;
+    if (!isFormValid) {
+      console.log("Form not valid", { firstName, lastName, email, phone, password, errors });
+      Alert.alert("Form Error", "Please fill all fields correctly and fix any errors.");
+      return;
+    }
 
     setLoading(true);
 
     try {
+      console.log("Starting registration...");
+      
       // Check if email already exists
       const userExists = await emailExists(email);
+      console.log("Email exists check:", userExists);
       
       if (userExists) {
         // Get the user ID for this email
@@ -106,6 +113,7 @@ export default function RegisterScreen({ route, navigation }) {
 
       // Generate unique user ID
       const generatedUserId = generateUniqueUserId();
+      console.log("Generated User ID:", generatedUserId);
       setUserId(generatedUserId);
 
       // Save user data to local storage
@@ -121,6 +129,7 @@ export default function RegisterScreen({ route, navigation }) {
       };
 
       const saved = await saveUser(userData);
+      console.log("User saved:", saved);
       
       if (saved) {
         setShowSuccessModal(true);
@@ -128,8 +137,8 @@ export default function RegisterScreen({ route, navigation }) {
         Alert.alert("Error", "Failed to create account. Please try again.");
       }
     } catch (error) {
-      Alert.alert("Error", "An error occurred. Please try again.");
       console.error("Registration error:", error);
+      Alert.alert("Error", error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -255,12 +264,14 @@ export default function RegisterScreen({ route, navigation }) {
             <TouchableOpacity
               style={[
                 RegisterStyles.button,
-                !isFormValid && { opacity: 0.5 },
+                (!isFormValid || loading) && { opacity: 0.5 },
               ]}
-              disabled={!isFormValid}
+              disabled={!isFormValid || loading}
               onPress={handleRegister}
             >
-              <Text style={RegisterStyles.buttonText}>Register</Text>
+              <Text style={RegisterStyles.buttonText}>
+                {loading ? "Registering..." : "Register"}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
