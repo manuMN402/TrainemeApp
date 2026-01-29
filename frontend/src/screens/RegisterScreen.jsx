@@ -227,8 +227,28 @@ export default function RegisterScreen({ route, navigation }) {
               alignItems: "center",
               borderWidth: 1,
               borderColor: "#333",
+              position: "relative",
             }}
           >
+            {/* CLOSE BUTTON */}
+            <TouchableOpacity
+              onPress={() => setShowSuccessModal(false)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                backgroundColor: "#1a1d2e",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 10,
+              }}
+            >
+              <Ionicons name="close" size={24} color="whitesmoke" />
+            </TouchableOpacity>
+
             {/* SUCCESS ICON */}
             <View
               style={{
