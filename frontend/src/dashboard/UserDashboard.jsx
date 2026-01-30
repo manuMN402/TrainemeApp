@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useState } from "react";
 import Home from "./Home";
 import Bookings from "./Bookings";
 import Messages from "./Messages";
@@ -46,6 +47,7 @@ function DashboardTabs({ route }) {
       <Tab.Screen
         name="BookingsTab"
         component={Bookings}
+        initialParams={{ userData: route?.params?.userData }}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="calendar" size={24} color={color} />
@@ -56,6 +58,7 @@ function DashboardTabs({ route }) {
       <Tab.Screen
         name="MessagesTab"
         component={Messages}
+        initialParams={{ userData: route?.params?.userData }}
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="chatbubble" size={24} color={color} />
@@ -79,5 +82,6 @@ function DashboardTabs({ route }) {
 }
 
 export default function UserDashboard({ route }) {
+  console.log("UserDashboard route params:", route?.params);
   return <DashboardTabs route={route} />;
 }

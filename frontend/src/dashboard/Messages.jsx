@@ -58,7 +58,7 @@ export default function Messages({ navigation }) {
         >
           <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
             <TouchableOpacity onPress={() => setSelectedChat(null)}>
-              <Ionicons name="arrow-back" size={15} color="whitesmoke" />
+              <Ionicons name="arrow-back" size={25} color="whitesmoke" />
             </TouchableOpacity>
             <View style={{ marginLeft: 12 }}>
               <Text
@@ -179,20 +179,13 @@ export default function Messages({ navigation }) {
           paddingVertical: 12,
         }}
       >
-        <Text style={{ fontSize: 20, fontWeight: "700", color: "white" }}>
+        <Text style={{ fontSize: 18, fontWeight: "700", color: "white" }}>
           Messages
         </Text>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={{
-            padding: 8,
-            backgroundColor: "#1a1d2e",
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: "#333",
-          }}
         >
-          <Ionicons name="arrow-back" size={20} color="#8b5cf6" />
+          <Ionicons name="arrow-back" size={25} color="whitesmoke" />
         </TouchableOpacity>
       </View>
 

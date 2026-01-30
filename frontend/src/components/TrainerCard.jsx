@@ -14,7 +14,7 @@ export default function TrainerCard({ trainer, onPress }) {
       {/* Trainer Image */}
       {trainer.image ? (
         <Image
-          source={{ uri: trainer.image }}
+          source={typeof trainer.image === 'string' ? { uri: trainer.image } : trainer.image}
           style={componentStyles.trainerCardImage}
         />
       ) : (

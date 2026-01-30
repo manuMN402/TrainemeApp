@@ -29,6 +29,22 @@ export default function Bookings({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B1A" }}>
       {/* Header with Back Button */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          paddingRight: 16,
+          paddingVertical: 10,
+          marginTop: 10,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={25} color="whitesmoke" />
+        </TouchableOpacity>
+      </View>
+      {/* Header with Back Button */}
       
       <View
         style={{

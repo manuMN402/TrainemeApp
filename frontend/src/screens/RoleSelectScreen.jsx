@@ -32,7 +32,15 @@ export default function RoleSelectScreen({ navigation }) {
         <TouchableOpacity
           style={styles.card}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate("Register", { role: "User" })}
+          onPress={() => {
+            console.log("User register button pressed");
+            try {
+              navigation.navigate("Register", { role: "User" });
+            } catch (error) {
+              console.error("Navigation error:", error);
+              Alert.alert("Error", "Failed to navigate to registration");
+            }
+          }}
         >
           <View style={styles.iconCircle}>
             <Ionicons name="person-outline" size={24} color={Colors.primary} />

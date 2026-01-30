@@ -117,10 +117,12 @@ export default function RegisterScreen({ route, navigation }) {
   };
 
   const handleRegister = async () => {
+    console.log("Register button pressed - Form valid:", isFormValid);
+    console.log("Loading state:", loading);
+    
     if (!isFormValid) {
       console.log("Form not valid", { firstName, lastName, email, phone, password, errors });
       Alert.alert("Form Error", "Please fill all fields correctly and fix any errors.");
-      setLoading(false);
       return;
     }
 
@@ -193,6 +195,7 @@ export default function RegisterScreen({ route, navigation }) {
             {
               text: "Continue",
               onPress: () => {
+                console.log("Navigating to:", nextScreen);
                 navigation.navigate(nextScreen, {
                   userData: {
                     userId: generatedUserId,
@@ -209,13 +212,13 @@ export default function RegisterScreen({ route, navigation }) {
           ]
         );
       } else {
+        setLoading(false);
         Alert.alert("Error", "Failed to create account. Please try again.");
       }
     } catch (error) {
+      setLoading(false);
       console.error("Registration error:", error);
       Alert.alert("Error", error.message || "An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -233,7 +236,7 @@ export default function RegisterScreen({ route, navigation }) {
         }}
       >
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={15} color="whitesmoke" />
+          <Ionicons name="arrow-back" size={25} color="whitesmoke" />
         </TouchableOpacity>
       </View>
 
@@ -271,6 +274,8 @@ export default function RegisterScreen({ route, navigation }) {
                 borderColor: "#6366F1",
                 width: "100%",
                 marginTop: 8,
+                paddingHorizontal: 14,
+                paddingVertical: 16,
               },
             ]}
           >
@@ -328,6 +333,7 @@ export default function RegisterScreen({ route, navigation }) {
                 (!isFormValid || loading) && { opacity: 0.5 },
               ]}
               disabled={!isFormValid || loading}
+              activeOpacity={0.8}
               onPress={handleRegister}
             >
               <Text style={RegisterStyles.buttonText}>

@@ -53,7 +53,7 @@ export default function Home({ navigation, route }) {
             padding: 8,
           }}
         >
-          <Ionicons name="arrow-back" size={15} color="whitesmoke" />
+          <Ionicons name="arrow-back" size={25} color="whitesmoke" />
         </TouchableOpacity>
       </View>
 

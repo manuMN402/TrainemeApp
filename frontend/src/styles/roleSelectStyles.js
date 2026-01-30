@@ -17,9 +17,12 @@ export const roleSelectStyles = StyleSheet.create({
   },
 
   container: {
-    width: IS_EXTRA_LARGE_DEVICE ? 600 : Platform.OS === "web" ? 420 : "100%",
-    paddingHorizontal: SPACING.SCREEN_PADDING_H,
-    paddingTop: IS_SMALL_DEVICE ? SPACING.XXXL : SPACING.XXXL,
+    width: IS_EXTRA_LARGE_DEVICE ? 600 : Platform.OS === "web" ? 420 : "90%",
+    maxWidth: 500,
+    paddingHorizontal: SPACING.L,
+    paddingVertical: SPACING.XL,
+    paddingTop: IS_SMALL_DEVICE ? SPACING.L : SPACING.XL,
+    paddingBottom: SPACING.XL,
     alignItems: "center",
   },
 
@@ -46,45 +49,49 @@ export const roleSelectStyles = StyleSheet.create({
   subtitle: {
     color: Colors.muted,
     textAlign: "center",
-    marginBottom: SPACING.XXXL,
+    marginBottom: SPACING.XL,
     fontSize: FONT_SIZES.BODY_M,
-    lineHeight: FONT_SIZES.BODY_M * 1.4,
+    lineHeight: FONT_SIZES.BODY_M * 1.5,
+    fontWeight: "500",
   },
 
   card: {
     width: "100%",
     backgroundColor: Colors.card,
     borderRadius: SPACING.RADIUS_L,
-    padding: SPACING.L,
+    padding: SPACING.M,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: SPACING.L,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    marginBottom: SPACING.M,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
     ...SHADOWS.LIGHT,
   },
 
   iconCircle: {
-    width: SPACING.XXXL,
-    height: SPACING.XXXL,
+    width: 50,
+    height: 50,
     borderRadius: SPACING.RADIUS_M,
-    backgroundColor: "#111827",
+    backgroundColor: "#1f2937",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: SPACING.L,
+    marginRight: SPACING.M,
+    flexShrink: 0,
   },
 
   cardTitle: {
     color: Colors.text,
     fontSize: FONT_SIZES.BODY_L,
-    fontWeight: "600",
-    marginBottom: SPACING.S,
+    fontWeight: "700",
+    marginBottom: SPACING.XS,
   },
 
   cardSub: {
     color: Colors.muted,
     fontSize: FONT_SIZES.BODY_S,
-    lineHeight: FONT_SIZES.BODY_S * 1.4,
+    lineHeight: FONT_SIZES.BODY_S * 1.5,
+    flex: 1,
+    flexWrap: "wrap",
   },
 
   loginText: {

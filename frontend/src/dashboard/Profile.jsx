@@ -52,16 +52,13 @@ export default function Profile({ navigation, route }) {
           paddingVertical: 12,
         }}
       >
-        <Text style={{ fontSize: 20, fontWeight: "700", color: "white" }}>
+        <Text style={{ fontSize: 18, fontWeight: "700", color: "white" }}>
           Profile
         </Text>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={{
-            padding: 8,
-          }}
         >
-          <Ionicons name="arrow-back" size={15} color="whitesmoke" />
+          <Ionicons name="arrow-back" size={25} color="whitesmoke" />
         </TouchableOpacity>
       </View>
 
