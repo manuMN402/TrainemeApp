@@ -6,9 +6,9 @@ export const register = async (req, res, next) => {
   try {
     const { email, password, firstName, lastName, phone, role } = req.body;
 
-    // Validate input
-    if (!email || !password || !firstName || !lastName) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Validate input (role must be provided by frontend)
+    if (!email || !password || !firstName || !lastName || !role) {
+      return res.status(400).json({ error: 'Missing required fields (role is required)' });
     }
 
     // Check if user exists
@@ -23,7 +23,7 @@ export const register = async (req, res, next) => {
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create user
+    // Create user (store the role exactly as provided)
     const user = await prisma.user.create({
       data: {
         email,
@@ -31,7 +31,7 @@ export const register = async (req, res, next) => {
         firstName,
         lastName,
         phone,
-        role: role || 'USER',
+        role: role,
       },
     });
 

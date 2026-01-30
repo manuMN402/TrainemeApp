@@ -1,18 +1,56 @@
 import express from 'express';
-import { register, login, getProfile, updateProfile, getAllUsers, getUserById, updateUserById, deleteUserById } from '../controllers/authController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import prisma from '../config/prisma.js';
+import { hashPassword } from '../utils/auth.js';
 
 const router = express.Router();
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/profile', authMiddleware, getProfile);
-router.put('/profile', authMiddleware, updateProfile);
+/**
+ * REGISTER USER
+ * POST /api/auth/register
+ */
+router.post('/register', async (req, res, next) => {
+  try {
+    const { firstName, lastName, email, phone, password, role = 'USER' } = req.body;
 
-// User CRUD
-router.get('/users', authMiddleware, getAllUsers);
-router.get('/users/:userId', authMiddleware, getUserById);
-router.put('/users/:userId', authMiddleware, updateUserById);
-router.delete('/users/:userId', authMiddleware, deleteUserById);
+    // Basic validation
+    if (!firstName || !lastName || !email || !phone || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
 
-export default router; 
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        phone,
+        password: hashedPassword,
+        role, // USER or TRAINER
+      },
+    });
+
+    // Remove password from response
+    const { password: _, ...safeUser } = user;
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: safeUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default router;

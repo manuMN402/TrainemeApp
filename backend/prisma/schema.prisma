@@ -11,27 +11,10 @@ datasource db {
 }
 
 // User model for both users and trainers
-enum UserRole {
-  USER
-  TRAINER
-}
+// Note: roles, booking status and availability day are stored as plain strings
+// to allow the frontend to send values with flexible casing/formats.
+// This keeps what the frontend sends without enforcing enum defaults.
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-}
-
-enum AvailabilityDay {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
 
 model User {
   id        String     @id @default(cuid())
@@ -41,7 +24,7 @@ model User {
   lastName  String
   phone     String?
   profileImage String?
-  role      UserRole   @default(USER)
+  role      String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -64,7 +47,11 @@ model TrainerProfile {
   specialty     String   // e.g., "Fitness", "Yoga", "CrossFit"
   experience    Int      // Years of experience
   certification String?
+  certifications String?
   hourlyRate    Float    // Price per hour
+  experienceText String?
+  isVerified    Boolean?
+  isOnline      Boolean?
   rating        Float    @default(0)
   reviewCount   Int      @default(0)
   
@@ -89,7 +76,7 @@ model Availability {
   trainerId     String
   trainer       TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   
-  day           AvailabilityDay
+  day           String
   startTime     String     // e.g., "09:00"
   endTime       String     // e.g., "17:00"
   
@@ -112,7 +99,7 @@ model Booking {
   startTime     String
   endTime       String
   
-  status        BookingStatus @default(PENDING)
+  status        String
   price         Float
   notes         String?
   

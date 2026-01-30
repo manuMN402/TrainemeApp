@@ -24,7 +24,7 @@ export const createBooking = async (req, res, next) => {
         endTime,
         price: trainer.hourlyRate,
         notes,
-        status: 'PENDING',
+        status: 'Pending',
       },
       include: {
         user: {
@@ -223,7 +223,7 @@ export const cancelBooking = async (req, res, next) => {
 
     const updated = await prisma.booking.update({
       where: { id: bookingId },
-      data: { status: 'CANCELLED' },
+      data: { status: 'Cancelled' },
     });
 
     res.json({

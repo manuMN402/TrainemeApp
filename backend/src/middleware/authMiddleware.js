@@ -17,14 +17,14 @@ export const authMiddleware = (req, res, next) => {
 };
 
 export const isTrainer = (req, res, next) => {
-  if (req.user.role !== 'TRAINER') {
+  if (!req.user || String(req.user.role).toLowerCase() !== 'trainer') {
     return res.status(403).json({ error: 'Only trainers can access this route' });
   }
   next();
 };
 
 export const isUser = (req, res, next) => {
-  if (req.user.role !== 'USER') {
+  if (!req.user || String(req.user.role).toLowerCase() !== 'user') {
     return res.status(403).json({ error: 'Only users can access this route' });
   }
   next();

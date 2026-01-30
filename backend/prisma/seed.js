@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const { hashPassword } = require('../src/utils/auth');
+import { PrismaClient } from '@prisma/client';
+import { hashPassword } from '../src/utils/auth.js';
 
 const prisma = new PrismaClient();
 
@@ -7,7 +7,7 @@ async function main() {
   try {
     console.log('🌱 Seeding database...');
 
-    // Clear existing data
+    // Clear existing data (order matters)
     await prisma.message.deleteMany();
     await prisma.review.deleteMany();
     await prisma.booking.deleteMany();
@@ -15,17 +15,13 @@ async function main() {
     await prisma.trainerProfile.deleteMany();
     await prisma.user.deleteMany();
 
-    // Create seed users
-    const user1Password = await hashPassword('password123');
-    const user2Password = await hashPassword('password123');
-    const trainer1Password = await hashPassword('password123');
-    const trainer2Password = await hashPassword('password123');
+    const commonPassword = await hashPassword('password123');
 
-    // Regular users
+    // USERS
     const user1 = await prisma.user.create({
       data: {
         email: 'user1@example.com',
-        password: user1Password,
+        password: commonPassword,
         firstName: 'John',
         lastName: 'Doe',
         phone: '+1234567890',
@@ -36,7 +32,7 @@ async function main() {
     const user2 = await prisma.user.create({
       data: {
         email: 'user2@example.com',
-        password: user2Password,
+        password: commonPassword,
         firstName: 'Jane',
         lastName: 'Smith',
         phone: '+0987654321',
@@ -44,11 +40,11 @@ async function main() {
       },
     });
 
-    // Trainers
+    // TRAINERS (USERS)
     const trainer1User = await prisma.user.create({
       data: {
         email: 'trainer1@example.com',
-        password: trainer1Password,
+        password: commonPassword,
         firstName: 'Mike',
         lastName: 'Johnson',
         phone: '+1111111111',
@@ -59,7 +55,7 @@ async function main() {
     const trainer2User = await prisma.user.create({
       data: {
         email: 'trainer2@example.com',
-        password: trainer2Password,
+        password: commonPassword,
         firstName: 'Sarah',
         lastName: 'Williams',
         phone: '+2222222222',
@@ -67,17 +63,20 @@ async function main() {
       },
     });
 
-    // Create trainer profiles
+    // TRAINER PROFILES
     const trainer1 = await prisma.trainerProfile.create({
       data: {
         userId: trainer1User.id,
         bio: 'Certified fitness trainer with 5 years of experience',
         specialty: 'Fitness',
         experience: 5,
-        certification: 'NASM-CPT',
+        experienceText: '5 years',
+        certifications: 'NASM-CPT',
         hourlyRate: 50,
         rating: 4.5,
         reviewCount: 10,
+        isVerified: false,
+        isOnline: false,
       },
     });
 
@@ -87,51 +86,47 @@ async function main() {
         bio: 'Yoga and pilates instructor specializing in flexibility',
         specialty: 'Yoga',
         experience: 7,
-        certification: 'RYT-200',
+        experienceText: '7 years',
+        certifications: 'RYT-200',
         hourlyRate: 40,
         rating: 4.8,
         reviewCount: 15,
+        isVerified: false,
+        isOnline: false,
       },
     });
 
-    // Create availabilities
-    await prisma.availability.create({
-      data: {
-        trainerId: trainer1.id,
-        day: 'MONDAY',
-        startTime: '09:00',
-        endTime: '17:00',
-      },
+    // AVAILABILITY
+    await prisma.availability.createMany({
+      data: [
+        {
+          trainerId: trainer1.id,
+          day: 'MONDAY',
+          startTime: '09:00',
+          endTime: '17:00',
+        },
+        {
+          trainerId: trainer1.id,
+          day: 'WEDNESDAY',
+          startTime: '10:00',
+          endTime: '18:00',
+        },
+        {
+          trainerId: trainer2.id,
+          day: 'TUESDAY',
+          startTime: '08:00',
+          endTime: '16:00',
+        },
+        {
+          trainerId: trainer2.id,
+          day: 'THURSDAY',
+          startTime: '09:00',
+          endTime: '17:00',
+        },
+      ],
     });
 
-    await prisma.availability.create({
-      data: {
-        trainerId: trainer1.id,
-        day: 'WEDNESDAY',
-        startTime: '10:00',
-        endTime: '18:00',
-      },
-    });
-
-    await prisma.availability.create({
-      data: {
-        trainerId: trainer2.id,
-        day: 'TUESDAY',
-        startTime: '08:00',
-        endTime: '16:00',
-      },
-    });
-
-    await prisma.availability.create({
-      data: {
-        trainerId: trainer2.id,
-        day: 'THURSDAY',
-        startTime: '09:00',
-        endTime: '17:00',
-      },
-    });
-
-    // Create bookings
+    // BOOKINGS
     const booking1 = await prisma.booking.create({
       data: {
         userId: user1.id,
@@ -144,7 +139,7 @@ async function main() {
       },
     });
 
-    const booking2 = await prisma.booking.create({
+    await prisma.booking.create({
       data: {
         userId: user2.id,
         trainerId: trainer2.id,
@@ -156,7 +151,7 @@ async function main() {
       },
     });
 
-    // Create reviews
+    // REVIEW
     await prisma.review.create({
       data: {
         bookingId: booking1.id,
@@ -167,12 +162,6 @@ async function main() {
     });
 
     console.log('✅ Database seeded successfully!');
-    console.log('📊 Created:');
-    console.log('   - 2 regular users');
-    console.log('   - 2 trainers');
-    console.log('   - 4 availabilities');
-    console.log('   - 2 bookings');
-    console.log('   - 1 review');
   } catch (error) {
     console.error('❌ Error seeding database:', error);
     process.exit(1);

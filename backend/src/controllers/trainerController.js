@@ -3,7 +3,7 @@ import prisma from '../config/database.js';
 // Create trainer profile
 export const createTrainerProfile = async (req, res, next) => {
   try {
-    const { bio, specialty, experience, certification, hourlyRate, profileImage, bannerImage } = req.body;
+    const { bio, specialty, experience, certification, certifications, experienceText, hourlyRate, profileImage, bannerImage, isVerified, isOnline } = req.body;
 
     // Check if trainer profile already exists
     const existingProfile = await prisma.trainerProfile.findUnique({
@@ -19,9 +19,13 @@ export const createTrainerProfile = async (req, res, next) => {
         userId: req.user.id,
         bio,
         specialty,
-        experience: parseInt(experience),
+        experience: experience ? parseInt(experience) : undefined,
         certification,
-        hourlyRate: parseFloat(hourlyRate),
+        certifications,
+        experienceText,
+        hourlyRate: hourlyRate ? parseFloat(hourlyRate) : undefined,
+        isVerified: typeof isVerified === 'undefined' ? undefined : Boolean(isVerified),
+        isOnline: typeof isOnline === 'undefined' ? undefined : Boolean(isOnline),
         profileImage,
         bannerImage,
       },
@@ -70,7 +74,7 @@ export const getTrainerProfile = async (req, res, next) => {
 // Update trainer profile
 export const updateTrainerProfile = async (req, res, next) => {
   try {
-    const { bio, specialty, experience, certification, hourlyRate, profileImage, bannerImage } = req.body;
+    const { bio, specialty, experience, certification, certifications, experienceText, hourlyRate, profileImage, bannerImage, isVerified, isOnline } = req.body;
 
     const trainerProfile = await prisma.trainerProfile.findUnique({
       where: { userId: req.user.id },
@@ -87,7 +91,11 @@ export const updateTrainerProfile = async (req, res, next) => {
         specialty: specialty || undefined,
         experience: experience ? parseInt(experience) : undefined,
         certification: certification || undefined,
+        certifications: certifications || undefined,
+        experienceText: experienceText || undefined,
         hourlyRate: hourlyRate ? parseFloat(hourlyRate) : undefined,
+        isVerified: typeof isVerified === 'undefined' ? undefined : Boolean(isVerified),
+        isOnline: typeof isOnline === 'undefined' ? undefined : Boolean(isOnline),
         profileImage: profileImage || undefined,
         bannerImage: bannerImage || undefined,
       },
