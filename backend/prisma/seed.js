@@ -25,7 +25,7 @@ async function main() {
         firstName: 'John',
         lastName: 'Doe',
         phone: '+1234567890',
-        role: 'USER',
+        
       },
     });
 
@@ -36,7 +36,7 @@ async function main() {
         firstName: 'Jane',
         lastName: 'Smith',
         phone: '+0987654321',
-        role: 'USER',
+        
       },
     });
 

@@ -22,9 +22,7 @@ model User {
   password  String
   firstName String
   lastName  String
-  phone     String?
-  profileImage String?
-  role      String
+  phone     String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -35,7 +33,7 @@ model User {
   receivedMessages Message[]     @relation("ReceivedMessages")
 
   @@index([email])
-  @@index([role])
+  
 }
 
 model TrainerProfile {
