@@ -1,17 +1,15 @@
 import prisma from '../config/database.js';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth.js';
 
-// Register user or trainer
+// Register user
 export const register = async (req, res, next) => {
   try {
-    const { email, password, firstName, lastName, phone, role } = req.body;
+    const { email, password, firstName, lastName, phone } = req.body;
 
-    // Validate input (role must be provided by frontend)
-    if (!email || !password || !firstName || !lastName || !role) {
-      return res.status(400).json({ error: 'Missing required fields (role is required)' });
+    if (!email || !password || !firstName || !lastName) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -20,10 +18,8 @@ export const register = async (req, res, next) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create user (store the role exactly as provided)
     const user = await prisma.user.create({
       data: {
         email,
@@ -31,11 +27,11 @@ export const register = async (req, res, next) => {
         firstName,
         lastName,
         phone,
-        role: role,
       },
     });
 
-    const token = generateToken(user.id, user.role);
+    // generate token without role
+    const token = generateToken(user.id);
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -44,7 +40,6 @@ export const register = async (req, res, next) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role,
       },
       token,
     });
@@ -74,12 +69,11 @@ export const login = async (req, res, next) => {
     }
 
     const isPasswordValid = await comparePassword(password, user.password);
-
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = generateToken(user.id, user.role);
+    const token = generateToken(user.id);
 
     res.json({
       message: 'Login successful',
@@ -88,7 +82,6 @@ export const login = async (req, res, next) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role,
         trainerProfile: user.trainerProfile,
       },
       token,
@@ -98,7 +91,7 @@ export const login = async (req, res, next) => {
   }
 };
 
-// Get current user
+// Get current user profile
 export const getProfile = async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
@@ -122,8 +115,6 @@ export const getProfile = async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       phone: user.phone,
-      profileImage: user.profileImage,
-      role: user.role,
       trainerProfile: user.trainerProfile,
     });
   } catch (error) {
@@ -131,10 +122,10 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
-// Update user profile
+// Update current user profile
 export const updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, phone, profileImage } = req.body;
+    const { firstName, lastName, phone } = req.body;
 
     const user = await prisma.user.update({
       where: { id: req.user.id },
@@ -142,7 +133,6 @@ export const updateProfile = async (req, res, next) => {
         firstName: firstName || undefined,
         lastName: lastName || undefined,
         phone: phone || undefined,
-        profileImage: profileImage || undefined,
       },
       include: {
         trainerProfile: true,
@@ -157,8 +147,6 @@ export const updateProfile = async (req, res, next) => {
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
-        profileImage: user.profileImage,
-        role: user.role,
       },
     });
   } catch (error) {
@@ -166,16 +154,19 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
-// Get user by ID (public safe view)
+// Get user by ID
 export const getUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { trainerProfile: true },
     });
 
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
     res.json({
       id: user.id,
@@ -183,8 +174,6 @@ export const getUserById = async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       phone: user.phone,
-      profileImage: user.profileImage,
-      role: user.role,
       trainerProfile: user.trainerProfile,
     });
   } catch (error) {
@@ -196,34 +185,48 @@ export const getUserById = async (req, res, next) => {
 export const updateUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    if (req.user.id !== userId) return res.status(403).json({ error: 'Forbidden' });
+    if (req.user.id !== userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
 
-    const { firstName, lastName, phone, profileImage, password } = req.body;
+    const { firstName, lastName, phone, password } = req.body;
 
     const data = {
       firstName: firstName || undefined,
       lastName: lastName || undefined,
       phone: phone || undefined,
-      profileImage: profileImage || undefined,
     };
 
     if (password) {
       data.password = await hashPassword(password);
     }
 
-    const user = await prisma.user.update({ where: { id: userId }, data });
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data,
+    });
 
-    res.json({ message: 'User updated', user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName } });
+    res.json({
+      message: 'User updated',
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// Delete user by ID (owner only)
+// Delete user by ID
 export const deleteUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    if (req.user.id !== userId) return res.status(403).json({ error: 'Forbidden' });
+    if (req.user.id !== userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
 
     await prisma.user.delete({ where: { id: userId } });
 
@@ -233,11 +236,16 @@ export const deleteUserById = async (req, res, next) => {
   }
 };
 
-// Get all users (authenticated)
+// Get all users
 export const getAllUsers = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, email: true, firstName: true, lastName: true, role: true, profileImage: true },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
     });
 
     res.json(users);

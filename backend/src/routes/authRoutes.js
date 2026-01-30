@@ -6,11 +6,11 @@ const router = express.Router();
 
 /**
  * REGISTER USER
- * POST /api/auth/register
+ * POST http://localhost:3000/api/auth/register
  */
 router.post('/register', async (req, res, next) => {
   try {
-    const { firstName, lastName, email, phone, password, role = 'USER' } = req.body;
+    const { firstName, lastName, email, phone, password } = req.body;
 
     // Basic validation
     if (!firstName || !lastName || !email || !phone || !password) {
@@ -29,7 +29,7 @@ router.post('/register', async (req, res, next) => {
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create user
+    // Create user (NO ROLE)
     const user = await prisma.user.create({
       data: {
         firstName,
@@ -37,7 +37,6 @@ router.post('/register', async (req, res, next) => {
         email,
         phone,
         password: hashedPassword,
-        role, // USER or TRAINER
       },
     });
 
