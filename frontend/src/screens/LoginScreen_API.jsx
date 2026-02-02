@@ -118,7 +118,7 @@ export default function LoginScreen({ navigation }) {
     (user) => {
       try {
         const role = user?.role || 'USER';
-        const navigationTarget = role === 'TRAINER' ? 'TrainerTabs' : 'UserTabs';
+        const navigationTarget = role === 'TRAINER' ? 'TrainerRegister' : 'UserDashboard';
 
         navigation.reset({
           index: 0,
@@ -157,8 +157,8 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
 
     try {
-      // Call API login
-      const response = await login(formData.email, formData.password);
+      // Call API login with normalized email
+      const response = await login(formData.email.toLowerCase().trim(), formData.password);
 
       if (response && response.user) {
         // Login successful - navigate based on role
@@ -169,8 +169,8 @@ export default function LoginScreen({ navigation }) {
 
       // Provide user-friendly error messages
       let errorMessage = 'An error occurred during login. Please try again.';
-      if (error.message.includes('Invalid credentials')) {
-        errorMessage = 'Invalid email or password. Please check and try again.';
+      if (error.message.includes('Invalid') || error.message.includes('credentials')) {
+        errorMessage = 'Invalid email or password. Please check and try again, or register if you\'re new.';
       } else if (error.message.includes('not found')) {
         errorMessage = 'User account not found. Please register first.';
       }

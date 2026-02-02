@@ -16,6 +16,9 @@ import RegisterStyles from '../styles/registerStyles';
 import { Colors } from '../constants/colors';
 import { useAuth } from '../contexts/AuthContext';
 
+// Enable this to test without backend
+const MOCK_MODE = true;
+
 // ==================== REGISTER SCREEN COMPONENT ====================
 export default function RegisterScreen({ route, navigation }) {
   const role = route?.params?.role || 'USER';
@@ -32,6 +35,23 @@ export default function RegisterScreen({ route, navigation }) {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // ==================== MOCK REGISTRATION ====================
+  const mockRegister = useCallback(async (data) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return {
+      user: {
+        id: 'user-' + Date.now(),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+      },
+      token: 'token-' + Date.now(),
+      message: 'User registered successfully',
+    };
+  }, []);
 
   // ==================== VALIDATION LOGIC ====================
 
@@ -76,10 +96,10 @@ export default function RegisterScreen({ route, navigation }) {
     if (field === 'phone') {
       if (!value) {
         error = 'Phone number is required';
-      } else if (!/^\d*$/.test(value)) {
+      } else if (!/^\d+$/.test(value)) {
         error = 'Phone can only contain numbers';
-      } else if (value.length !== 10) {
-        error = `Phone must be exactly 10 digits (${value.length}/10)`;
+      } else if (value.length < 7 || value.length > 15) {
+        error = 'Phone must be 7-15 digits';
       }
     }
 
@@ -89,12 +109,6 @@ export default function RegisterScreen({ route, navigation }) {
         error = 'Password is required';
       } else if (value.length < 6) {
         error = 'Password must be at least 6 characters';
-      } else if (!/[A-Z]/.test(value)) {
-        error = 'Password must contain at least 1 uppercase letter';
-      } else if (!/[a-z]/.test(value)) {
-        error = 'Password must contain at least 1 lowercase letter';
-      } else if (!/\d/.test(value)) {
-        error = 'Password must contain at least 1 number';
       }
     }
 
@@ -119,9 +133,9 @@ export default function RegisterScreen({ route, navigation }) {
     formData.firstName.trim().length > 0 &&
     formData.lastName.trim().length > 0 &&
     formData.email.trim().length > 0 &&
-    formData.phone.length > 0 &&
-    formData.password.length > 0 &&
-    Object.values(errors).every((e) => e === '');
+    formData.email.includes('@') &&
+    formData.phone.length >= 7 &&
+    formData.password.length >= 6;
 
   /**
    * Get password strength indicator
@@ -145,9 +159,10 @@ export default function RegisterScreen({ route, navigation }) {
    * Handle registration with API
    */
   const handleRegister = useCallback(async () => {
-    console.log('Register button pressed - Form valid:', isFormValid);
+    console.log('🔵 Register button pressed - Form valid:', isFormValid);
 
     if (!isFormValid) {
+      console.log('❌ Form is invalid');
       Alert.alert(
         'Form Error',
         'Please fill all fields correctly and fix any errors.'
@@ -156,54 +171,77 @@ export default function RegisterScreen({ route, navigation }) {
     }
 
     if (loading || authLoading) {
-      console.log('Already registering, ignoring duplicate click');
+      console.log('⚠️ Already registering, ignoring duplicate click');
       return;
     }
 
     setLoading(true);
 
     try {
-      console.log('Starting registration with role:', role);
+      console.log('🚀 Starting registration with role:', role);
+      console.log('📝 Registration data:', {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone,
+      });
 
-      // Call API register (do not send role - it's determined by trainer profile creation)
-      const response = await register({
+      const registrationData = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
         phone: formData.phone,
         password: formData.password,
-      });
+      };
+
+      console.log('📤 Sending registration request...');
+      
+      let response;
+      
+      if (MOCK_MODE) {
+        // Use mock registration for testing
+        console.log('🧪 MOCK MODE: Using mock response');
+        response = await mockRegister(registrationData);
+      } else {
+        // Use real backend API
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000)
+        );
+        response = await Promise.race([
+          register(registrationData),
+          timeoutPromise
+        ]);
+      }
+
+      console.log('✅ Response received:', response);
 
       if (response && response.user) {
-        console.log('Registration successful:', response.user);
+        console.log('✨ Registration successful:', response.user);
 
         Alert.alert(
           'Success',
-          'Registration successful! You are now logged in.',
+          'Registration successful! Welcome to TrainMe!',
           [
             {
               text: 'OK',
               onPress: () => {
-                // For trainers, navigate to trainer setup or tabs
-                // For users, navigate to user tabs
+                console.log('🔄 Navigating based on role:', role);
                 if (role === 'TRAINER') {
                   navigation.reset({
                     index: 0,
                     routes: [
                       {
                         name: 'TrainerRegister',
-                        params: {
-                          userData: response.user,
-                        },
                       },
                     ],
                   });
                 } else {
+                  // Navigate to UserDashboard
                   navigation.reset({
                     index: 0,
                     routes: [
                       {
-                        name: 'UserTabs',
+                        name: 'UserDashboard',
                         params: {
                           userData: response.user,
                         },
@@ -216,33 +254,29 @@ export default function RegisterScreen({ route, navigation }) {
           ]
         );
       } else {
-        throw new Error('Invalid registration response');
+        console.error('❌ Invalid registration response:', response);
+        throw new Error('Registration failed: No user data received');
       }
     } catch (error) {
-      console.error('Registration error:', error);
-
-      let errorMessage =
-        error.message ||
-        'An error occurred during registration. Please try again.';
-      if (
-        error.message &&
-        error.message.includes('already registered')
-      ) {
-        errorMessage =
-          'This email is already registered. Please try logging in or use a different email.';
-      } else if (
-        error.message &&
-        error.message.includes('validation')
-      ) {
-        errorMessage =
-          'Please check your input and ensure all fields are filled correctly.';
+      console.error('❌ Registration error:', error);
+      console.error('❌ Error message:', error.message);
+      
+      let errorMessage = error.message || 'Registration failed. Please try again.';
+      
+      if (error.message.includes('Network request failed')) {
+        errorMessage = 'Network error: Cannot reach server. Make sure backend is running on 192.168.0.228:3000';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Request timeout: Backend server is not responding. Please check if it\'s running.';
+      } else if (error.message.includes('already registered')) {
+        errorMessage = 'This email is already registered. Please use a different email.';
       }
 
       Alert.alert('Registration Failed', errorMessage);
     } finally {
+      console.log('🏁 Setting loading to false');
       setLoading(false);
     }
-  }, [isFormValid, formData, loading, authLoading, role, register, navigation]);
+  }, [isFormValid, formData, loading, authLoading, role, register, mockRegister, navigation]);
 
   /**
    * Handle back navigation

@@ -3,9 +3,11 @@
  * Centralized API calls for all backend endpoints
  */
 
+// Use PC's IP for mobile/Expo testing
 const API_BASE_URL = 'http://192.168.0.228:3000/api';
+const API_TIMEOUT = 15000; // 15 second timeout
 
-// Helper function to handle requests
+// Helper function to handle requests with timeout
 const apiCall = async (endpoint, method = 'GET', body = null, token = null) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -25,16 +27,45 @@ const apiCall = async (endpoint, method = 'GET', body = null, token = null) => {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    const data = await response.json();
+    // Create an AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-    if (!response.ok) {
-      throw new Error(data.error || `HTTP Error: ${response.status}`);
+    console.log(`[API] ${method} ${endpoint} - Starting request`);
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log(`[API] ${method} ${endpoint} - Response status: ${response.status}`);
+
+    let data;
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      console.error(`[API] Unexpected response type: ${contentType}, body: ${text}`);
+      throw new Error(`Invalid response format: ${contentType}`);
     }
 
+    if (!response.ok) {
+      console.error(`[API] Error response:`, data);
+      throw new Error(data.error || data.message || `HTTP Error: ${response.status}`);
+    }
+
+    console.log(`[API] ${method} ${endpoint} - Success`);
     return data;
   } catch (error) {
-    console.error(`API Error [${method} ${endpoint}]:`, error);
+    if (error.name === 'AbortError') {
+      console.error(`API Timeout [${method} ${endpoint}]: Request took longer than ${API_TIMEOUT}ms`);
+      throw new Error(`Request timeout. Please check your connection and try again.`);
+    }
+    console.error(`API Error [${method} ${endpoint}]:`, error.message || error);
     throw error;
   }
 };

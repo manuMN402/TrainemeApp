@@ -11,111 +11,158 @@ import {
 
 export default StyleSheet.create({
   /* SCREEN */
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
-
   container: {
-    padding: SPACING.SCREEN_PADDING_H,
-    paddingTop: IS_SMALL_DEVICE ? SPACING.XXXL : SPACING.XXXL,
-  },
-
-  /* BACK */
-  back: {
-    color: Colors.muted,
-    fontSize: FONT_SIZES.BODY_M,
-    marginBottom: SPACING.L,
+    flex: 1,
+    backgroundColor: "#070B1A",
   },
 
   /* HEADER */
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#1E293B",
+  },
+
+  backButton: {
+    padding: 8,
+  },
+
+  /* SCROLL CONTENT */
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+
+  /* TITLE SECTION */
+  titleSection: {
+    marginBottom: 24,
+  },
+
   title: {
-    fontSize: FONT_SIZES.HEADING_L,
+    fontSize: 28,
     fontWeight: "700",
-    color: Colors.text,
-    marginBottom: SPACING.S,
+    color: "white",
+    marginBottom: 8,
   },
 
   subtitle: {
-    fontSize: FONT_SIZES.BODY_M,
-    color: Colors.muted,
-    marginTop: SPACING.S,
-    marginBottom: SPACING.XXL,
-    lineHeight: FONT_SIZES.BODY_M * 1.4,
+    fontSize: 14,
+    color: "#999",
+    lineHeight: 20,
   },
 
-  /* CARD */
-  card: {
-    backgroundColor: Colors.card,
-    borderRadius: SPACING.RADIUS_XXL,
-    padding: SPACING.M,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginHorizontal: 0,
-    maxWidth: IS_EXTRA_LARGE_DEVICE ? 600 : "100%",
-    alignSelf: IS_EXTRA_LARGE_DEVICE ? "center" : "auto",
-    width: IS_EXTRA_LARGE_DEVICE ? 600 : "100%",
+  /* FORM CONTAINER */
+  formContainer: {
+    marginBottom: 24,
   },
 
-  /* LABEL */
+  /* INPUT GROUP */
+  inputGroup: {
+    marginBottom: 16,
+  },
+
   label: {
-    color: Colors.text,
-    fontSize: FONT_SIZES.LABEL,
-    marginBottom: SPACING.S,
-    fontWeight: "500",
-  },
-
-  /* INPUT */
-  inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#111827",
-    borderRadius: SPACING.RADIUS_M,
-    paddingHorizontal: SPACING.L,
-    paddingVertical: SPACING.M,
-    borderWidth: 1,
-    borderColor: "#1E293B",
-    marginBottom: SPACING.M,
-    minHeight: DIMENSIONS.INPUT_HEIGHT,
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 8,
   },
 
   input: {
+    backgroundColor: "#1a1d2e",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "#333",
+    fontSize: 14,
+    color: "white",
+    minHeight: 48,
+  },
+
+  inputError: {
+    borderColor: "#ef4444",
+    backgroundColor: "#1a1d2e",
+  },
+
+  errorText: {
+    color: "#ef4444",
+    fontSize: 12,
+    marginTop: 4,
+  },
+
+  /* PASSWORD INPUT */
+  passwordInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1a1d2e",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "#333",
+    minHeight: 48,
+  },
+
+  passwordInput: {
     flex: 1,
-    marginLeft: SPACING.M,
-    fontSize: FONT_SIZES.BODY_M,
-    color: Colors.text,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: "white",
+  },
+
+  /* PASSWORD STRENGTH */
+  strengthContainer: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  strengthBar: {
+    flex: 1,
+    height: 4,
+    backgroundColor: "#333",
+    borderRadius: 2,
+    marginRight: 8,
+  },
+
+  strengthText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
 
   /* BUTTON */
   button: {
-    marginTop: SPACING.M,
-    backgroundColor: Colors.primary,
-    paddingVertical: SPACING.L,
-    paddingHorizontal: SPACING.L,
-    borderRadius: SPACING.RADIUS_L,
+    backgroundColor: "#8b5cf6",
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: "center",
-    minHeight: DIMENSIONS.BUTTON_HEIGHT,
+    minHeight: 48,
     justifyContent: "center",
-    ...SHADOWS.MEDIUM,
+    marginTop: 24,
   },
 
   buttonText: {
-    color: "#fff",
-    fontSize: FONT_SIZES.BODY_L,
+    color: "white",
+    fontSize: 16,
     fontWeight: "600",
   },
 
-  /* LOGIN TEXT */
-  loginText: {
-    marginTop: SPACING.XXL,
-    textAlign: "center",
-    color: Colors.muted,
-    fontSize: FONT_SIZES.BODY_S,
-    lineHeight: FONT_SIZES.BODY_S * 1.5,
+  /* LOGIN LINK */
+  loginLinkContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 16,
   },
 
-  login: {
-    color: Colors.primary,
+  loginLinkText: {
+    color: "#999",
+    fontSize: 14,
+  },
+
+  loginLink: {
+    color: "#8b5cf6",
     fontWeight: "600",
+    fontSize: 14,
   },
 });

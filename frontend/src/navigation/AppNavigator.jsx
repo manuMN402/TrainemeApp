@@ -7,8 +7,8 @@ import SplashScreen from "../screens/SplashScreen";
 
 // AUTH SCREENS
 import RoleSelectScreen from "../screens/RoleSelectScreen";
-import LoginScreen from "../screens/LoginScreen";
-import RegisterScreen from "../screens/RegisterScreen";
+import LoginScreen from "../screens/LoginScreen_API";
+import RegisterScreen from "../screens/RegisterScreen_API";
 import TrainerRegisterScreen from "../screens/TrainerRegisterScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import OTPVerificationScreen from "../screens/OTPVerificationScreen";

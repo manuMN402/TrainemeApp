@@ -6,33 +6,52 @@ export const register = async (req, res, next) => {
   try {
     const { email, password, firstName, lastName, phone } = req.body;
 
+    console.log('[REGISTER] Request received with:', { email, firstName, lastName, phone });
+
+    // Validate required fields
     if (!email || !password || !firstName || !lastName) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      console.error('[REGISTER] Missing required fields');
+      return res.status(400).json({ error: 'Missing required fields: email, password, firstName, lastName' });
     }
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase().trim();
+    console.log('[REGISTER] Normalized email:', normalizedEmail);
+
+    // Check if email already exists
+    console.log('[REGISTER] Checking if email exists...');
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
+      console.error('[REGISTER] Email already registered:', normalizedEmail);
       return res.status(400).json({ error: 'Email already registered' });
     }
 
+    // Hash password
+    console.log('[REGISTER] Hashing password...');
     const hashedPassword = await hashPassword(password);
 
+    // Create user
+    console.log('[REGISTER] Creating user in database...');
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         firstName,
         lastName,
-        phone,
+        phone: phone || '', // Allow empty phone
       },
     });
 
-    // generate token without role
+    console.log('[REGISTER] User created successfully:', user.id);
+
+    // Generate token
+    console.log('[REGISTER] Generating token...');
     const token = generateToken(user.id);
 
+    console.log('[REGISTER] Sending success response');
     res.status(201).json({
       message: 'User registered successfully',
       user: {
@@ -40,10 +59,12 @@ export const register = async (req, res, next) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phone: user.phone,
       },
       token,
     });
   } catch (error) {
+    console.error('[REGISTER] Error caught:', error);
     next(error);
   }
 };
@@ -58,19 +79,21 @@ export const login = async (req, res, next) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase() },
       include: {
         trainerProfile: true,
       },
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      console.log(`[LOGIN] User not found for email: ${email}`);
+      return res.status(401).json({ error: 'Invalid email/User ID or password. Please check and try again or register if you\'re new.' });
     }
 
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      console.log(`[LOGIN] Invalid password for user: ${email}`);
+      return res.status(401).json({ error: 'Invalid email/User ID or password. Please check and try again or register if you\'re new.' });
     }
 
     const token = generateToken(user.id);
@@ -87,6 +110,7 @@ export const login = async (req, res, next) => {
       token,
     });
   } catch (error) {
+    console.error('[LOGIN] Error:', error);
     next(error);
   }
 };

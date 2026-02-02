@@ -58,18 +58,42 @@ export const AuthProvider = ({ children }) => {
    * Register user
    */
   const register = useCallback(async (registrationData) => {
+    console.log('[AuthContext] Register called with data:', registrationData);
     setLoading(true);
     try {
+      console.log('[AuthContext] Calling API register...');
       const response = await api.auth.register(registrationData);
-      if (response.token && response.user) {
-        await saveToken(response.token);
-        setUser(response.user);
-        return response;
+      
+      console.log('[AuthContext] API response received:', response);
+
+      if (!response) {
+        throw new Error('No response from registration endpoint');
       }
+
+      if (!response.token) {
+        throw new Error('No authentication token in response');
+      }
+
+      if (!response.user) {
+        throw new Error('No user data in response');
+      }
+
+      console.log('[AuthContext] Saving token and user...');
+      await saveToken(response.token);
+      setUser(response.user);
+
+      console.log('[AuthContext] Registration successful');
+      return response;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('[AuthContext] Registration error:', error);
+      console.error('[AuthContext] Error details:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+      });
       throw error;
     } finally {
+      console.log('[AuthContext] Setting loading to false');
       setLoading(false);
     }
   }, [saveToken]);
