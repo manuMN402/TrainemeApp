@@ -8,6 +8,7 @@ import Home from "./Home";
 import Bookings from "./Bookings";
 import Messages from "./Messages";
 import Profile from "./Profile";
+import { useAuth } from "../contexts/AuthContext";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -82,6 +83,16 @@ function DashboardTabs({ route }) {
 }
 
 export default function UserDashboard({ route }) {
-  console.log("UserDashboard route params:", route?.params);
-  return <DashboardTabs route={route} />;
+  const { user } = useAuth();
+  const userData = route?.params?.userData ?? user;
+
+  console.log(
+    "UserDashboard userData (source):",
+    route?.params?.userData ? "route" : user ? "auth" : "none",
+    userData
+  );
+
+  // always pass a resolved `route.params` to the tabs so child screens can keep
+  // using `route.params.userData` without changing their implementation
+  return <DashboardTabs route={{ params: { userData } }} />;
 }

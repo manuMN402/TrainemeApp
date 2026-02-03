@@ -22,7 +22,7 @@ const MOCK_MODE = true;
 // ==================== REGISTER SCREEN COMPONENT ====================
 export default function RegisterScreen({ route, navigation }) {
   const role = route?.params?.role || 'USER';
-  const { register, loading: authLoading } = useAuth();
+  const { register, loading: authLoading, setAuth } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -202,6 +202,12 @@ export default function RegisterScreen({ route, navigation }) {
         // Use mock registration for testing
         console.log('🧪 MOCK MODE: Using mock response');
         response = await mockRegister(registrationData);
+        // persist mock auth so authenticated navigator is mounted before we reset
+        try {
+          await setAuth(response.token, response.user);
+        } catch (err) {
+          console.warn('setAuth failed during mock registration:', err);
+        }
       } else {
         // Use real backend API
         const timeoutPromise = new Promise((_, reject) =>
@@ -226,7 +232,9 @@ export default function RegisterScreen({ route, navigation }) {
               text: 'OK',
               onPress: () => {
                 console.log('🔄 Navigating based on role:', role);
+
                 if (role === 'TRAINER') {
+                  // Trainer stays in the unauthenticated flow (TrainerRegister)
                   navigation.reset({
                     index: 0,
                     routes: [
@@ -235,20 +243,15 @@ export default function RegisterScreen({ route, navigation }) {
                       },
                     ],
                   });
-                } else {
-                  // Navigate to UserDashboard
-                  navigation.reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'UserDashboard',
-                        params: {
-                          userData: response.user,
-                        },
-                      },
-                    ],
-                  });
+                  return;
                 }
+
+                // USER flow: do NOT reset — auth was persisted (real or mock),
+                // AppNavigator will switch to the authenticated stack. Avoid
+                // an explicit reset to prevent a duplicate mount of UserDashboard.
+                console.log(
+                  'Auth persisted — AppNavigator will handle routing to UserDashboard'
+                );
               },
             },
           ]
